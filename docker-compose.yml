@@ -1,0 +1,39 @@
+version: '3.9'
+services:
+  api:
+    build:
+      context: ./APIGateway
+    restart: always
+    hostname: APIGateway
+    container_name: APIGateway
+    ports:
+      - "8000:8000"
+    environment:
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_DURATION=5
+      - SECRET=secret
+    networks:
+      - postgres-network
+    links:
+      - "db"
+  db:
+    image: postgres
+    hostname: pgdb
+    container_name: pgdb
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: toor
+      POSTGRES_DB: employme
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - postgres-network
+volumes:
+  db-data:
+
+networks:
+  postgres-network:
+    name: postgres-network
