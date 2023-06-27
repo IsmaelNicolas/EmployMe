@@ -6,7 +6,10 @@ from Utils.Services import *
 
 app = FastAPI()
 
-# Configuración del CORS
+"""
+Configuración del CORS
+Se definen los dominios permitidos para las solicitudes CORS.
+"""
 origins = [
     "http://localhost",
     "http://localhost:8000",
@@ -23,4 +26,10 @@ app.add_middleware(
 app.include_router(api_router)
 
 if __name__ == "__main__":
+    """
+    Inicia el servidor uvicorn en el archivo "app" con la variable "app".
+    Se configura el host en "0.0.0.0" para aceptar conexiones de cualquier dirección IP.
+    Se configura el puerto en 8000.
+    Se habilita el modo de recarga automática para el desarrollo.
+    """
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

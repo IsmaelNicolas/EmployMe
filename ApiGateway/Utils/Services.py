@@ -12,8 +12,21 @@ from Models.User import User, UserDB
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="/api/login")
 
-# Busca el usuario en la base de datos
 def search_user(user_name: str, db=True) -> User:
+    """
+    Busca un usuario en la base de datos por su nombre de usuario.
+
+    Args:
+        user_name (str): Nombre de usuario a buscar.
+        db (bool): Indica si se debe devolver un objeto UserDB (True) o User (False).
+    
+    Returns:
+        UserDB or User: El objeto UserDB o User encontrado en la base de datos.
+
+    Raises:
+        HTTPException: Si el usuario no se encuentra en la base de datos.
+        HTTPException: Si ocurre un error al conectar con la base de datos.
+    """
     print("search user")
     conn = None
     try:
@@ -39,6 +52,19 @@ def search_user(user_name: str, db=True) -> User:
 
 
 async def auth_user(token: str = Depends(oauth2)):
+    """
+    Autentica al usuario a partir del token JWT.
+
+    Args:
+        token (str): Token JWT para autenticar al usuario.
+    
+    Returns:
+        User: El objeto User autenticado.
+
+    Raises:
+        HTTPException: Si el token JWT no es válido o no contiene el nombre de usuario.
+        HTTPException: Si el usuario no está autenticado.
+    """
     exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                               detail="UNAUTHORIZED", headers={"WWW-Authenticate": "Bearer"})
     try:
@@ -52,8 +78,20 @@ async def auth_user(token: str = Depends(oauth2)):
 
     return search_user(user_name=user_name, db=False)
 
-# obtiene el usuario actual
+
 async def current_user(user: User = Depends(auth_user)):
+    """
+    Obtiene el usuario actual autenticado.
+
+    Args:
+        user (User): El usuario autenticado obtenido de auth_user.
+    
+    Returns:
+        User: El usuario autenticado.
+
+    Raises:
+        HTTPException: Si el usuario no está autenticado.
+    """
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="UNAUTHORIZED", headers={"WWW-Authenticate": "Bearer"})

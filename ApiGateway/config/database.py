@@ -2,7 +2,16 @@ import psycopg2
 
 
 class Database:
+    """
+    Clase para administrar la conexión a la base de datos PostgreSQL.
 
+    Atributos:
+        database (dict): Configuración de la base de datos.
+
+    Métodos:
+        get_connection(): Establece una conexión a la base de datos y devuelve el objeto de conexión.
+
+    """
     database = {
         "dbname": "employme",
         "user": "root",
@@ -13,6 +22,13 @@ class Database:
 
     @classmethod
     def get_connection(cls):
+        """
+        Establece una conexión a la base de datos PostgreSQL.
+
+        Returns:
+            psycopg2.extensions.connection: Objeto de conexión a la base de datos.
+
+        """
         conn = psycopg2.connect(
             dbname=cls.database["dbname"],
             user=cls.database["user"],
