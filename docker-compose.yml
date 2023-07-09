@@ -16,6 +16,21 @@ services:
       - postgres-network
     links:
       - "db"
+  
+  user:
+    build:
+      context: ./User
+    image: user-microservice
+    restart: always
+    hostname: user
+    container_name: user
+    ports:
+      - "8080:8080"
+    networks:
+      - postgres-network
+    links:
+      - db
+
   db:
     image: postgres
     hostname: pgdb
