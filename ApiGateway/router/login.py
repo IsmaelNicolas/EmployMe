@@ -34,7 +34,7 @@ async def login(response: Response, form: OAuth2PasswordRequestForm = Depends())
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
 
-    expire = (datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_DURATION)).strftime("%a, %d-%b-%Y %H:%M:%S GMT")
+    expire = ((datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_DURATION)).timestamp())
 
     access_token = {
         "sub": user.user_name,

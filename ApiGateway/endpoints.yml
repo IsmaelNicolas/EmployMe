@@ -1,0 +1,42 @@
+microservices:
+  User:
+    port: 8080
+    endpoints:
+      - route: /getuser
+        method: GET
+      - route: /updateuserimage
+        method: PATCH
+      - route: /uploaduserimage
+        method: PATCH
+      - route: /createuser
+        method: POST
+      - route: /updateuser
+        method: PUT
+      - route: /deleteuser
+        method: DELETE
+  Posts: 
+    port: 8081
+    endpoints: 
+      - route: /getpost/{id}
+        method: GET
+      - route: /createpost
+        method: POST
+      - route: /updatepost
+        method: PUT
+      - route: /post
+        method: POST
+      - route: /deletepost/{id_post}
+        method: DELETE
+  Job:
+    port: 8082
+    endpoints: 
+      - route: /getjobs/{user_id}
+        method: GET
+      - route: /getjob/{job_id}
+        method: GET
+      - route: /createjob
+        method: POST
+      - route: /updatejob
+        method: PUT
+      - route: /deletejob/{id_post}
+        method: DELETE

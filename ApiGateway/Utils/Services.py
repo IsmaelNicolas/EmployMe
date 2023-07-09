@@ -4,7 +4,7 @@ import psycopg2
 import psycopg2.extras
 from config.database import Database
 from config.environment import *
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, WebSocket, status
 from fastapi.logger import logger
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -27,7 +27,6 @@ def search_user(user_name: str, db=True) -> User:
         HTTPException: Si el usuario no se encuentra en la base de datos.
         HTTPException: Si ocurre un error al conectar con la base de datos.
     """
-    print("search user")
     conn = None
     try:
         conn = Database.get_connection()
@@ -40,6 +39,7 @@ def search_user(user_name: str, db=True) -> User:
                 status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
         user_dict = dict(user)
+        print(user_dict)
         return UserDB(**user_dict) if db else User(**user_dict)
 
     except Exception as e:
@@ -51,7 +51,7 @@ def search_user(user_name: str, db=True) -> User:
             conn.close()
 
 
-async def auth_user(token: str = Depends(oauth2)):
+async def   auth_user(token: str = Depends(oauth2)):
     """
     Autentica al usuario a partir del token JWT.
 
@@ -96,3 +96,47 @@ async def current_user(user: User = Depends(auth_user)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="UNAUTHORIZED", headers={"WWW-Authenticate": "Bearer"})
     return user
+
+def validate_route(route: str):
+    if route.endswith('/') or '//' in route:
+        return False,False  # No puede terminar en '/' ni tener dos barras consecutivas '//'
+    
+    special = {'{', '}', '/'}
+    open_bracket = 0
+    previous_char = None
+    for char in route:
+        if previous_char == char and char in special:
+            return False,False  # Dos caracteres especiales seguidos
+        
+        if char == '{':
+            open_bracket += 1
+        
+        if char == '}':
+            if open_bracket == 0:
+                return False ,False # Paréntesis cerrado sin paréntesis abierto previo
+            open_bracket -= 1
+        
+        previous_char = char
+    
+    return open_bracket == 0 and route.count('{') == route.count('}') ,  '{' in route # Paréntesis abierto sin paréntesis cerrado posterior
+
+
+
+
+def authenticate_websocket(token):
+    # Obtener el token JWT del encabezado de la solicitud de WebSocket
+    exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                              detail="UNAUTHORIZED", headers={"WWW-Authenticate": "Bearer"})
+
+    try:
+        user_name = jwt.decode(token, SECRET, ALGORITHM)
+        print('token: '+ user_name)
+        if user_name is None:
+            raise exception
+
+    except JWTError as e:
+        print("JWT error" + str(e))
+        raise exception
+
+    return search_user(user_name=user_name, db=False)
+

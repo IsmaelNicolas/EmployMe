@@ -1,4 +1,7 @@
 import os
+import dotenv
+
+dotenv.load_dotenv()
 
 ALGORITHM =  os.getenv('ALGORITHM')
 """

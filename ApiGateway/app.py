@@ -1,7 +1,8 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from router.login import api_router
+from router.microservices import ms_router
 from Utils.Services import *
 
 app = FastAPI()
@@ -13,6 +14,7 @@ Se definen los dominios permitidos para las solicitudes CORS.
 origins = [
     "http://localhost",
     "http://localhost:8000",
+    "*"
 ]
 
 app.add_middleware(
@@ -23,7 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+mis ='hello'
+ps = 'pt'
+
 app.include_router(api_router)
+app.include_router(ms_router)
+
 
 if __name__ == "__main__":
     """
