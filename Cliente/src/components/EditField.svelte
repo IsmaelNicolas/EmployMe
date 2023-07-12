@@ -1,4 +1,5 @@
 <script>
+	// @ts-ignore
 	import Icon from 'svelte-icons-pack/Icon.svelte';
 	import HiOutlinePencil from 'svelte-icons-pack/hi/HiOutlinePencil';
 	import HiOutlineSave from 'svelte-icons-pack/hi/HiOutlineSave';
@@ -6,10 +7,11 @@
 	export let value = '';
 	export let description = '';
 	let editMode = false;
-	let editedValue = value;
+	let editedValue = '';
 
 	function toggleEditMode() {
 		editMode = !editMode;
+		editedValue = value; // Asignar el valor actual a editedValue
 	}
 
 	function saveChanges() {

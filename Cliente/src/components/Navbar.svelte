@@ -1,5 +1,10 @@
 <script>
     import logo from "$lib/media/userexample.jpeg"
+
+    function handleLogout() {
+    // Eliminar el token de acceso del almacenamiento local
+    localStorage.removeItem('access_token');
+  }
 </script>
 
 <div class="navbar bg-accent">
@@ -28,7 +33,7 @@
           </li>
           <li><a href="/home">Chat</a></li>
           <li><a href="/home">Settings</a></li>
-          <li><a href="/login">Logout</a></li>
+          <li><a href="/login" on:click={handleLogout}>Logout</a></li>
         </ul>
       </div>
     </div>

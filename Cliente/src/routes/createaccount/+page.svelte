@@ -1,17 +1,43 @@
 <script>
+	import { goto } from '$app/navigation';
 	import logo from '$lib/media/employme.svg';
 
 	let username = '';
 	let password = '';
 	let email = '';
 
-	function handleSubmit() {
-		// Lógica para procesar los datos del formulario aquí
-		console.log('Usuario:', username);
-		console.log('Contraseña:', password);
-		console.log('Correo electrónico:', email);
+	async function handleSubmit() {
+		const userData = {
+			user_id: "",
+			user_name: username,
+			user_score: 0,
+			user_email: email,
+			user_password: password
+		};
+
+		try {
+			const response = await fetch('http://localhost:8000/api/createuser', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(userData)
+			});
+
+			if (response.ok) {
+				// El usuario se creó exitosamente
+				console.log('Usuario creado correctamente');
+				goto("login")
+			} else {
+				// Error al crear el usuario
+				console.log('Error al crear el usuario');
+			}
+		} catch (error) {
+			console.log('Error de conexión:', error);
+		}
 	}
 </script>
+
 
 <div class="flex flex-col justify-center items-center h-screen bg-gray-50">
 	<div class="flex flex-row justify-center items-center">
