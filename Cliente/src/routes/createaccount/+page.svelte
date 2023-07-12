@@ -13,8 +13,8 @@
 	}
 </script>
 
-<div class="flex flex-col justify-center items-center h-screen">
-	<div class="flex flex-row justify-center items-center mb-5">
+<div class="flex flex-col justify-center items-center h-screen bg-gray-50">
+	<div class="flex flex-row justify-center items-center">
 		<img src={logo} alt="Logo" class="w-16 h-16" />
 		<p class="ml-2">EmployME</p>
 	</div>

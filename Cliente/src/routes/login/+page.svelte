@@ -1,5 +1,7 @@
 <script>
     import logo from '$lib/media/employme.svg';
+    import { goto } from '$app/navigation'
+  
     let username = '';
     let password = '';
   
@@ -7,16 +9,18 @@
       // Lógica para procesar los datos del formulario aquí
       console.log('Usuario:', username);
       console.log('Contraseña:', password);
+      goto("/home")
     }
   </script>
   
-  <div class="flex flex-col justify-center items-center h-screen">
+  
+  <div class="flex flex-col justify-center items-center h-screen bg-gray-50">
     <div class="flex flex-row justify-center items-center">
       <img src={logo} alt="Logo" class="w-16 h-16" />
       <p class="ml-2">EmployME</p>
     </div>
     <form
-      class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mt-5 flex flex-col items-center"
+      class="bg-white shadow-lg rounded px-8 pt-6 pb-8 mb-4 mt-5 flex flex-col items-center"
       on:submit|preventDefault={handleSubmit}
     >
       <div class="mb-4">
