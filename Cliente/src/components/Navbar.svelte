@@ -17,12 +17,12 @@
       </div>
       <div class="dropdown dropdown-end">
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+        <div tabindex="0" class="btn btn-ghost btn-circle avatar">
           <div class="w-full rounded-full">
             <!-- svelte-ignore a11y-missing-attribute -->
             <img src="{logo}" />
           </div>
-        </label>
+        </div>
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <ul tabindex="0" class="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
           <li>

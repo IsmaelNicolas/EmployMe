@@ -159,3 +159,34 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 .vscode
+
+# Archivos generados por el compilador de Svelte
+/__sapper__/
+/.svelte/
+
+# Dependencias y archivos generados por el gestor de paquetes npm
+/node_modules/
+/package-lock.json
+
+# Archivos generados durante la construcción del proyecto
+/public/build/
+/public/dist/
+
+# Archivos de configuración específicos del entorno local
+.env
+.env.local
+.env.*.local
+
+# Otros archivos o directorios generados por tu proyecto
+/dist/
+/build/
+
+# Si utilizas un editor de código específico, agrega aquí los archivos y directorios generados por ese editor
+# Ejemplo para Visual Studio Code
+/.vscode/
+*.code-workspace
+
+# Archivos de respaldo y caché de diferentes programas
+*.log
+*.swp
+.DS_Store

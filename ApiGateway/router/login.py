@@ -29,6 +29,7 @@ async def login(response: Response, form: OAuth2PasswordRequestForm = Depends())
         HTTPException: Si la contraseña es incorrecta.
     """
     user: UserDB = search_user(form.username)
+    print(form.username)
 
     if not crypt.verify(form.password, user.user_password):
         raise HTTPException(
@@ -45,7 +46,7 @@ async def login(response: Response, form: OAuth2PasswordRequestForm = Depends())
 
     response = JSONResponse(
         content={"access_token": encoded_token, "token_type": "bearer"},
-        status_code=status.HTTP_202_ACCEPTED
+        status_code=status.HTTP_200_OK
     )
 
     response.set_cookie(
@@ -53,6 +54,7 @@ async def login(response: Response, form: OAuth2PasswordRequestForm = Depends())
         value=encoded_token,
         expires=expire,
         httponly=True,
+        samesite='lax',
     )
 
     return response

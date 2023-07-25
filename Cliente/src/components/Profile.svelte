@@ -1,5 +1,3 @@
-<!-- Home.svelte -->
-
 <script>
 	import EditField from './EditField.svelte';
 	import avatar from '$lib/media/userexample.jpeg';
@@ -74,12 +72,15 @@
 
 <div class="flex flex-row justify-between align-middle items-center">
 	<div class="w-1/3 flex flex-col ml-20">
+		<h1 class="text-3xl font-bold text-center mb-6 bg-transparent">Perfil de Usuario</h1>
 		<div class="w-full justify-between h-max items-center flex">
 			<img src={user.avatar} alt="User Avatar" class="rounded-3xl w-full h-full mb-4" />
 		</div>
 		<EditField description={'Nombre'} bind:value={user.name} />
 		<EditField description={'Email'} bind:value={user.email} />
-		<Stat score={user.score} />
+		<div class="flex justify-center  items-center">
+			<Stat score={user.score} />
+		</div>
 		<div class="flex w-full justify-between mt-10">
 			<button class="btn btn-info w-1/4">Ver estadísticas</button>
 			<button class="btn btn-neutral w-1/4" on:click={updateUser}>Guardar cambios</button>
@@ -91,3 +92,4 @@
 		<img src={logo} />
 	</div>
 </div>
+

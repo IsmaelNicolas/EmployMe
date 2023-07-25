@@ -1,3 +1,5 @@
+import re
+from urllib.parse import parse_qs, urlparse
 import httpx
 import yaml
 from typing import Any, Dict
@@ -14,7 +16,29 @@ routes = {}
 ms_router = APIRouter(prefix="/api")
 
 
-async def redirect_json(request: Request, response: Response,json_data: Dict[str, Any]):
+async def redirect_post_user(request: Request, response: Response, json_data: Dict[str, Any]):
+    logger.warning(request.url.path)
+    target = routes[request.url.path]["endpoint"]
+    method = routes[request.url.path]["method"]
+
+    try:
+        async with httpx.AsyncClient() as client:
+            logger.warning(f'Redirigiendo a {target} ({method})')
+            response_target = await client.post(target, json=json_data)
+
+            response_target.raise_for_status()
+    except httpx.RequestError as e:
+        logger.error(
+            f'Rediredcción error: {status.HTTP_503_SERVICE_UNAVAILABLE} {str(e)}  Target: {target} , Method: {method}')
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
+
+    response.status_code = response_target.status_code
+
+    return response_target.json()
+
+
+async def redirect_json(request: Request, response: Response, json_data: Dict[str, Any], user: User = Depends(current_user)):
     logger.warning(request.url.path)
     target = routes[request.url.path]["endpoint"]
     method = routes[request.url.path]["method"]
@@ -41,8 +65,39 @@ async def redirect_json(request: Request, response: Response,json_data: Dict[str
     return response_target.json()
 
 
-def redirect_params(request: Request, param: str):
-    return {"mensaje": f"Redirigiendo al post {param}... \n {request.query_params['param']}"}
+async def redirect_params(request: Request,response:Response , param: str, user: User = Depends(current_user)):
+    # Analizar la URL de la solicitud
+    target = routes[request.url.path]["endpoint"]
+    method = routes[request.url.path]["method"]
+
+    # Buscar todas las ocurrencias de contenido entre `{}` en el mensaje
+    matches = re.findall(r"\{(.+?)\}", target)
+
+    # Reemplazar cada ocurrencia con el contenido correspondiente
+    for match in matches:
+        target = target.replace("{" + match + "}", param)
+
+    try:
+        async with httpx.AsyncClient() as client:
+            logger.warning(f'Redirigiendo a {target} ({method})')
+            if method == Methods.DELETE.value:
+                response_target = await client.delete(target)
+            elif method == Methods.GET.value:
+                response_target = await client.get(target)
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=f"Method {method} not supported")
+            response_target.raise_for_status()
+    except httpx.RequestError as e:
+        logger.error(
+            f'Rediredcción error: {status.HTTP_503_SERVICE_UNAVAILABLE} {str(e)}  Target: {target} , Method: {method}')
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
+
+    response.status_code = response_target.status_code
+
+    return response_target.json()
+
 # Función "redirect"
 
 
@@ -94,6 +149,9 @@ for servicio, info_servicio in data["microservices"].items():
             funcion = redirect_json
         if metodo == Methods.PATCH.value:
             funcion = image_route
+
+        if servicio.lower() == "user" and metodo == Methods.POST.value:
+            funcion = redirect_post_user
 
         if valida:
             ms_router.add_api_route(

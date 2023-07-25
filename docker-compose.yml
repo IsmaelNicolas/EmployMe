@@ -3,6 +3,7 @@ services:
   api:
     build:
       context: ./APIGateway
+    image: apigateway
     restart: always
     hostname: APIGateway
     container_name: APIGateway
@@ -10,7 +11,7 @@ services:
       - "8000:8000"
     environment:
       - ALGORITHM=HS256
-      - ACCESS_TOKEN_DURATION=5
+      - ACCESS_TOKEN_DURATION=30
       - SECRET=secret
     networks:
       - postgres-network
@@ -26,6 +27,20 @@ services:
     container_name: user
     ports:
       - "8080:8080"
+    networks:
+      - postgres-network
+    links:
+      - db
+    
+  posts:
+    build:
+      context: ./Posts
+    image: post-microservice
+    restart: always
+    hostname: posts
+    container_name: posts
+    ports:
+      - "8081:8081"
     networks:
       - postgres-network
     links:

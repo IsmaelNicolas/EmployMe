@@ -33,7 +33,7 @@ def search_user(user_name: str, db=True) -> User:
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute('SELECT * FROM "USER" WHERE USER_NAME = %s', (user_name,))
         user = cur.fetchone()
-        logger.info(user)
+        logger.warn(user)
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -41,11 +41,17 @@ def search_user(user_name: str, db=True) -> User:
         user_dict = dict(user)
         print(user_dict)
         return UserDB(**user_dict) if db else User(**user_dict)
-
-    except Exception as e:
-        print("Error base de datos:", str(e))
+    except psycopg2.Error:
+        logger.warn("Error base de datos:"+ str(e))
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Server error")
+    except HTTPException:
+        # Re-raise HTTPException to propagate the error with the correct status code
+        raise
+    except Exception as e:
+        logger.warn("Error:"+ str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Server error")
     finally:
         if conn is not None:
             conn.close()

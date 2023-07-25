@@ -1,6 +1,5 @@
 import os
 
-
 ALGORITHM =  os.getenv('ALGORITHM')
 """
 Algoritmo utilizado para codificar y decodificar el token JWT.

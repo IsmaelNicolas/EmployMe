@@ -12,21 +12,13 @@ microservices:
         method: POST
       - route: /updateuser
         method: PUT
-      - route: /deleteuser
+      - route: /deleteuser/{user_id}
         method: DELETE
   Posts: 
     port: 8081
     endpoints: 
-      - route: /getpost/{id}
-        method: GET
       - route: /createpost
         method: POST
-      - route: /updatepost
-        method: PUT
-      - route: /post
-        method: POST
-      - route: /deletepost/{id_post}
-        method: DELETE
   Job:
     port: 8082
     endpoints: 

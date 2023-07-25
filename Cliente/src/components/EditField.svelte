@@ -1,8 +1,7 @@
 <script>
 	// @ts-ignore
-	import Icon from 'svelte-icons-pack/Icon.svelte';
-	import HiOutlinePencil from 'svelte-icons-pack/hi/HiOutlinePencil';
-	import HiOutlineSave from 'svelte-icons-pack/hi/HiOutlineSave';
+	import Icon from '@iconify/svelte';
+
 
 	export let value = '';
 	export let description = '';
@@ -26,11 +25,11 @@
 			<div class="flex items-center">
 				<span class="mr-2 text-2xl">{description}:</span>
 				<input type="text" bind:value={editedValue} class="input input-bordered" />
-				<button class="ml-2" on:click={saveChanges}><Icon src={HiOutlineSave} /></button>
+				<button class="ml-2" on:click={saveChanges}><Icon icon="material-symbols:check" height={32} color="green"/></button>
 			</div>
 		{:else}
 			<p class="mr-2 text-2xl">{description}: {value}</p>
-			<button class="ml-2" on:click={toggleEditMode}><Icon src={HiOutlinePencil} /></button>
+			<button class="ml-2" on:click={toggleEditMode}><Icon icon="material-symbols:edit" height={24}  color="#2B4162"/></button>
 		{/if}
 	</div>
 </div>

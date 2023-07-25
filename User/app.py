@@ -55,7 +55,7 @@ async def create_user(user: UserDB):
         cur = conn.cursor()
         query = 'INSERT INTO "USER" (user_id, user_name, user_score, user_email,user_password) VALUES (gen_random_uuid(), %s, %s, %s,%s)'
         values = (user.user_name, user.user_score,
-                    user.user_email, crypt.encrypt(user.user_password))
+                  user.user_email, crypt.encrypt(user.user_password))
         cur.execute(query, values)
         conn.commit()
         cur.close()
@@ -69,17 +69,45 @@ async def create_user(user: UserDB):
 
 # Ruta para actualizar un usuario
 @api_router.put("/updateuser")
-def update_user():
-    # Lógica para actualizar un usuario
-    return {"message": "Actualizar usuario"}
+def update_user(user: User):
+    conn = None
+    try:
+        conn = Database.get_connection()
+        cur = conn.cursor()
+        query = 'UPDATE "USER" SET user_name = %s, user_email = %s WHERE user_name = %s'
+        values = (user.user_name,user.user_email, user.user_name)
+        cur.execute(query, values)
+        conn.commit()
+        cur.close()
+        return User(**dict(user))
+    except psycopg2.Error as e:
+        return HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No se pudo actualizar el usuario: " + str(e))
+    finally:
+        if conn is not None:
+            conn.close()
+
 
 # Ruta para eliminar un usuario
 
+@api_router.delete("/deleteuser/{user_id}")
+def delete_user(user_id: str):
+    conn = None
+    try:
+        conn = Database.get_connection()
+        cur = conn.cursor()
+        query = 'DELETE FROM "USER" WHERE user_id = %s'
+        values = (user_id,)
+        cur.execute(query, values)
+        conn.commit()
+        cur.close()
+        return {"message": "Usuario eliminado correctamente"}
+    except psycopg2.Error as e:
+        return HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No se pudo eliminar el usuario: " + str(e))
+    finally:
+        if conn is not None:
+            conn.close()
 
-@api_router.delete("/deleteuser")
-def delete_user():
-    # Lógica para eliminar un usuario
-    return {"message": "Eliminar usuario"}
+
 
 app.include_router(api_router)
 
