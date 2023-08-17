@@ -92,6 +92,19 @@ services:
       - "5433:5432"
     networks:
       - app-network
+  chatting:
+    build:
+      context: ./Chat
+    image: chat-microservice
+    restart: always
+    hostname: messages
+    container_name: messages
+    ports:
+      - "8083:8000"
+    environment:
+      - MONGODB_URI=mongodb://root:root@localhost:27020"
+    networks:
+      - app-network
 
 volumes:
   db-data:
