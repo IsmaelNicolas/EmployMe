@@ -1,5 +1,5 @@
 import uvicorn
-import psycopg2.errors
+import uuid
 from passlib.context import CryptContext
 from fastapi import APIRouter, FastAPI, status, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,13 +50,18 @@ async def create_user(user: UserDB):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, detail="User exist")
 
-        print(current)
         conn = Database.get_connection()
+        user.user_id = str(uuid.uuid4()) 
+
         cur = conn.cursor()
-        query = 'INSERT INTO "USER" (user_id, user_name, user_score, user_email,user_password) VALUES (gen_random_uuid(), %s, %s, %s,%s)'
-        values = (user.user_name, user.user_score,
+        query = 'INSERT INTO "USER" (user_id, user_name, user_score, user_email,user_password) VALUES (%s, %s, %s, %s,%s)'
+        values = (user.user_id,user.user_name, user.user_score,
                   user.user_email, crypt.encrypt(user.user_password))
         cur.execute(query, values)
+
+        query = 'INSERT INTO requester (user_id) values(%s)'
+        cur.execute(query,(user.user_id,))
+    
         conn.commit()
         cur.close()
         return User(**dict(user))

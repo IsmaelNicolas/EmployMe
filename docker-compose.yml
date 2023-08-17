@@ -14,10 +14,10 @@ services:
       - ACCESS_TOKEN_DURATION=30
       - SECRET=secret
     networks:
-      - postgres-network
+      - app-network
     links:
       - "db"
-  
+
   user:
     build:
       context: ./User
@@ -28,10 +28,10 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - postgres-network
+      - app-network
     links:
       - db
-    
+
   posts:
     build:
       context: ./Posts
@@ -42,9 +42,28 @@ services:
     ports:
       - "8081:8081"
     networks:
-      - postgres-network
+      - app-network
     links:
       - db
+
+  images:
+    build:
+      context: ./Images
+    image: images-microservice
+    restart: always
+    hostname: images
+    container_name: images
+    ports:
+      - "3000:3000"
+    environment:
+      - passworddb=password
+      - userdb=incp
+      - hostdb=monguito
+      - database=imageDB
+    links:
+      - monguito
+    networks:
+      - app-network
 
   db:
     image: postgres
@@ -60,10 +79,27 @@ services:
     ports:
       - "5433:5432"
     networks:
-      - postgres-network
+      - app-network
+
+  monguito:
+    image: mongo
+    hostname: monguito
+    container_name: monguito
+    restart: always
+    ports:
+      - "27019:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=incp
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
 volumes:
   db-data:
-
+  mongo-data:
+ 
 networks:
-  postgres-network:
-    name: postgres-network
+  app-network:
+    name: app-network

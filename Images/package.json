@@ -1,0 +1,18 @@
+{
+  "name": "images",
+  "version": "1.0.0",
+  "description": "Api rest para un CRUD de imagenes ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cloudinary": "^1.40.0",
+    "express": "^4.18.2",
+    "express-list-endpoints": "^6.0.0",
+    "mongoose": "^7.4.3",
+    "multer": "^1.4.5-lts.1"
+  }
+}

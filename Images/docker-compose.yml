@@ -1,0 +1,41 @@
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+    image: images-microservice
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - passworddb=password
+      - userdb=incp
+      - hostdb=monguito
+      - database=imageDB
+    links:
+      - monguito
+    networks:
+      - app-network
+
+  monguito:
+    image: mongo
+    hostname: monguito
+    container_name: monguito
+    restart: always
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=incp
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+
+networks:
+  app-network:
+    name: app-network
+

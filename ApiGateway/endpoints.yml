@@ -19,6 +19,14 @@ microservices:
     endpoints: 
       - route: /createpost
         method: POST
+      - route: /updatepost
+        method: PUT
+      - route: /skills/{skill_name}
+        method: GET
+      - route: /posts/{user_id}
+        method: GET
+      - route: /posts/search
+        method: POST
   Job:
     port: 8082
     endpoints: 
