@@ -6,6 +6,7 @@
 	import { goto } from '$app/navigation';
 	import Loader from '../../components/Loader.svelte';
 	import { setContext } from 'svelte';
+	import { API_ENDPOINT } from '../../Utils/Config';
 
 	async function checKAccess() {
 		let access_token = checkToken();
@@ -14,7 +15,7 @@
 			goto('/login');
 		}
 
-		const response = await fetch('http://localhost:8000/api/user/me', {
+		const response = await fetch(API_ENDPOINT + '/user/me', {
 			headers: {
 				Authorization: `Bearer ${access_token}`
 			}
@@ -42,12 +43,11 @@
 	</div>
 {:then data}
 	{#if data.user_id}
-	<div class="hidden">
-		{setUserId(data.user_id)}
-
-	</div>
+		<div class="hidden">
+			{setUserId(data.user_id)}
+		</div>
 	{/if}
-	<Navbar />
+	<Navbar user_id={data.user_id} />
 	<slot />
 	<Footer />
 {:catch}

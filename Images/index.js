@@ -4,12 +4,16 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 const listEndpoints = require("express-list-endpoints");
+const cors = require("cors")
 
 const userRouter = express.Router();
 const jobRouter = express.Router();
 
 const app = express();
 const port = 3000;
+
+app.use(cors())
+
 
 const cloudinaryCloudName = process.env.CLOUDINARY_CLOUD_NAME || "dktwgz3ax";
 const cloudinaryApiKey = process.env.CLOUDINARY_API_KEY || "814627947713372";
@@ -26,9 +30,9 @@ cloudinary.config({
 const password = process.env.passworddb || "toor";
 const user = process.env.userdb || "incp";
 const host = process.env.hostdb || "localhost";
-const database = process.env.database || "imageDB";
+const database = process.env.database || "microservices";
 
-const dbUrl = `mongodb://${user}:${password}@${host}:27017/`;
+const dbUrl = `mongodb+srv://${user}:${password}@${host}/${database}?retryWrites=true&w=majority`;
 
 console.log(dbUrl);
 mongoose
@@ -44,14 +48,22 @@ mongoose
   });
 
 // Definir el modelo de imagen en la base de datos
-const ImageSchema = new mongoose.Schema({
+const ImageSchemaUser = new mongoose.Schema({
   user_id: { type: String, required: true }, // Agregamos user_id
   public_id: String,
   url: String,
   description: String,
 });
 
-const Image = mongoose.model("Image", ImageSchema);
+const ImageSchemaJob = new mongoose.Schema({
+  job_id: { type: String, required: true }, // Agregamos user_id
+  public_id: String,
+  url: String,
+  description: String,
+});
+
+const ImageUser = mongoose.model("User", ImageSchemaUser);
+const ImageJob = mongoose.model("Job", ImageSchemaJob);
 
 // Configuración de multer para subir imágenes
 const storage = multer.memoryStorage();
@@ -60,6 +72,7 @@ const upload = multer({ storage: storage });
 // Rutas de la API
 
 userRouter.post("/upload", upload.single("image"), async (req, res) => {
+  console.log("Uploading job image...")
   try {
     const { user_id, description } = req.body; // Obtener user_id y description del body
 
@@ -80,7 +93,7 @@ userRouter.post("/upload", upload.single("image"), async (req, res) => {
     await fs.promises.unlink(tempFilePath);
 
     // Crear registro en la base de datos
-    const newImage = new Image({
+    const newImage = new ImageUser({
       user_id: user_id,
       public_id: result.public_id,
       url: result.secure_url,
@@ -97,12 +110,14 @@ userRouter.post("/upload", upload.single("image"), async (req, res) => {
 });
 
 userRouter.get("/images", async (req, res) => {
+  console.log("Getting user image...")
   try {
     const user_id = req.query.user_id; // Obtener user_id de la query
 
     const query = user_id ? { user_id: user_id } : {}; // Construir la query según el user_id
 
-    const images = await Image.find(query);
+    const images = await ImageUser.find(query);
+    console.log("Getting ok")
     res.status(200).json(images);
   } catch (error) {
     console.error(error);
@@ -115,7 +130,7 @@ userRouter.delete("/images/:id", async (req, res) => {
     const user_id = req.query.user_id; // Obtener user_id de la query
     const imageId = req.params.id;
 
-    const image = await Image.findOne({ _id: imageId, user_id: user_id });
+    const image = await ImageUser.findOne({ _id: imageId, user_id: user_id });
 
     if (!image) {
       return res.status(404).json({ message: "Image not found" });
@@ -135,6 +150,7 @@ userRouter.delete("/images/:id", async (req, res) => {
 });
 
 jobRouter.post("/upload", upload.single("image"), async (req, res) => {
+  console.log("Uploading job image...")
   try {
     const { job_id, description } = req.body; // Obtener job_id y description del body
 
@@ -155,7 +171,7 @@ jobRouter.post("/upload", upload.single("image"), async (req, res) => {
     await fs.promises.unlink(tempFilePath);
 
     // Crear registro en la base de datos
-    const newImage = new Image({
+    const newImage = new ImageJob({
       job_id: job_id,
       public_id: result.public_id,
       url: result.secure_url,
@@ -163,7 +179,7 @@ jobRouter.post("/upload", upload.single("image"), async (req, res) => {
     });
 
     await newImage.save();
-
+    console.log("Image save")
     res.status(201).json(newImage);
   } catch (error) {
     console.error(error);
@@ -172,12 +188,13 @@ jobRouter.post("/upload", upload.single("image"), async (req, res) => {
 });
 
 jobRouter.get("/images", async (req, res) => {
+  console.log("Get job image...")
   try {
     const job_id = req.query.job_id; // Obtener job_id de la query
 
     const query = job_id ? { job_id: job_id } : {}; // Construir la query según el job_id
 
-    const images = await Image.find(query);
+    const images = await ImageJob.find(query);
     res.status(200).json(images);
   } catch (error) {
     console.error(error);
@@ -186,11 +203,12 @@ jobRouter.get("/images", async (req, res) => {
 });
 
 jobRouter.delete("/images/:id", async (req, res) => {
+  console.log("Deleting job image...")
   try {
     const job_id = req.query.job_id; // Obtener job_id de la query
     const imageId = req.params.id;
 
-    const image = await Image.findOne({ _id: imageId, job_id: job_id });
+    const image = await ImageJob.findOne({ _id: imageId, job_id: job_id });
 
     if (!image) {
       return res.status(404).json({ message: "Image not found" });
@@ -217,7 +235,6 @@ app.route("/about").get(function (req, res) {
   res.status(200).json({ endpoints: listEndpoints(app) });
 });
 
-// ...
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

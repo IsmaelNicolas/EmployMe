@@ -1,10 +1,11 @@
+import psycopg2
 import uvicorn
 import uuid
 from passlib.context import CryptContext
 from fastapi import APIRouter, FastAPI, status, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from Models.User import User, UserDB
+from Models.User import User, UserDB, UserDBTotal
 from Config.Database import Database
 from Utils.Utils import search_user
 
@@ -40,7 +41,7 @@ def upload_user_image():
 
 
 @api_router.post("/createuser", status_code=status.HTTP_201_CREATED,)
-async def create_user(user: UserDB):
+async def create_user(user: UserDBTotal):
 
     conn = None
     try:
@@ -51,17 +52,25 @@ async def create_user(user: UserDB):
                 status_code=status.HTTP_409_CONFLICT, detail="User exist")
 
         conn = Database.get_connection()
-        user.user_id = str(uuid.uuid4()) 
+        user.user_id = str(uuid.uuid4())
 
         cur = conn.cursor()
         query = 'INSERT INTO "USER" (user_id, user_name, user_score, user_email,user_password) VALUES (%s, %s, %s, %s,%s)'
-        values = (user.user_id,user.user_name, user.user_score,
+        values = (user.user_id, user.user_name, user.user_score,
                   user.user_email, crypt.encrypt(user.user_password))
         cur.execute(query, values)
 
         query = 'INSERT INTO requester (user_id) values(%s)'
-        cur.execute(query,(user.user_id,))
-    
+        cur.execute(query, (user.user_id,))
+
+        query = "INSERT INTO candidate (user_id,neighborhood,main_street,secondary_street) values(%s,%s,' ',' ')"
+        cur.execute(query, (user.user_id, user.neighborhood))
+
+        for skill_id in user.skills:
+            cur.execute(
+                "INSERT INTO candidateskill (skill_id, user_id) VALUES (%s, %s)",
+                (skill_id, user.user_id)
+            )
         conn.commit()
         cur.close()
         return User(**dict(user))
@@ -80,7 +89,7 @@ def update_user(user: User):
         conn = Database.get_connection()
         cur = conn.cursor()
         query = 'UPDATE "USER" SET user_name = %s, user_email = %s WHERE user_name = %s'
-        values = (user.user_name,user.user_email, user.user_name)
+        values = (user.user_name, user.user_email, user.user_name)
         cur.execute(query, values)
         conn.commit()
         cur.close()
@@ -92,7 +101,6 @@ def update_user(user: User):
             conn.close()
 
 
-# Ruta para eliminar un usuario
 
 @api_router.delete("/deleteuser/{user_id}")
 def delete_user(user_id: str):
@@ -111,7 +119,6 @@ def delete_user(user_id: str):
     finally:
         if conn is not None:
             conn.close()
-
 
 
 app.include_router(api_router)

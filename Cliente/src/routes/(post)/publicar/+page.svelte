@@ -6,6 +6,7 @@
 	import { getContext } from 'svelte';
 	import { checkToken } from '../../../Utils/Utils';
 	import { FlatToast, ToastContainer, toasts } from 'svelte-toasts';
+	import { API_ENDPOINT, API_ENDPOINTI } from '../../../Utils/Config';
 
 	let selectedImage: File | null = null;
 	let response: { skill_id: string; skill_name: string }[] = [];
@@ -50,7 +51,7 @@
 		let jobRequest: Job = { ...job, job_skills: skills_ids };
 		let access_token = checkToken();
 
-		const response = await fetch('http://localhost:8000/api/createpost', {
+		const response = await fetch(API_ENDPOINT + '/createpost', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -65,12 +66,12 @@
 		}
 	}
 
-	let submitPromise: Promise<any>;
+	let submitPromise: any;
 
 	function handleSubmit() {
 		submitPromise = submitFunction();
+		handleUpload()
 		cleanForm();
-		
 	}
 
 	let skill_name: string = '';
@@ -82,6 +83,7 @@
 
 	$: if (skill_name.length >= 2) {
 		const accessToken = localStorage.getItem('access_token');
+		// @ts-ignore
 		response = fetch(`http://localhost:8000/api/skills/{skill_name}?param=${skill_name}`, {
 			headers: {
 				Authorization: `Bearer ${accessToken}`
@@ -136,6 +138,30 @@
 			// component: BootstrapToast, // allows to override toast component/template per toast
 		});
 	}
+
+	const handleUpload = async () => {
+		if (!selectedImage) {
+			console.error('Please select an image');
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append('image', selectedImage);
+		formData.append('job_id', job.job_title); // Cambia esto con el valor correcto
+
+		const response = await fetch(API_ENDPOINTI + '/jobs/upload', {
+			method: 'POST',
+			body: formData
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			selectedImage=null;
+			console.log('Image uploaded:', data);
+		} else {
+			console.error('Error uploading image');
+		}
+	};
 </script>
 
 <div class="h-screen flex flex-col justify-start align-middle">
@@ -240,7 +266,9 @@
 	</div>
 
 	<div class=" w-full flex align-middle justify-center h-fit">
-		<InputForm text="Publicar" type="submit" clase="w-1/4" on:clickInput={handleSubmit} />
+		{#if selectedImage}
+			<InputForm text="Publicar" type="submit" clase="w-1/4" on:clickInput={handleSubmit} />
+		{/if}
 		{#await submitPromise}
 			<Loader />
 		{/await}

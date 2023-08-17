@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import EditField from './EditField.svelte';
 	import Stat from './Stat.svelte';
 	// @ts-ignore
@@ -9,6 +9,25 @@
 	import InputForm from './InputForm.svelte';
 	import { checkToken } from '../Utils/Utils';
 	import Loader from './Loader.svelte';
+	import { API_ENDPOINT, API_ENDPOINTI } from '../Utils/Config';
+	import { onMount } from 'svelte';
+
+	let selectedImage: File | null = null;
+
+	$: avatarSrc = user.avatar || avatar;
+
+
+	function handleFileInput(event: Event) {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+
+		if (file && file.type.startsWith('image/')) {
+			selectedImage = file;
+		} else {
+			selectedImage = null;
+			alert('Por favor, selecciona un archivo de imagen válido.');
+		}
+	}
 
 	export let user = {
 		user_id: '',
@@ -18,7 +37,6 @@
 		avatar: undefined
 	};
 
-	$: avatarSrc = user.avatar || avatar;
 
 	async function deleteUser() {
 		console.log('Borrando usuario...');
@@ -112,7 +130,7 @@
 	/**
 	 * @type {Promise<any>}
 	 */
-	let response;
+	let response: Promise<any>;
 
 	$: if (job_title.length >= 2) {
 		const search = {
@@ -121,7 +139,7 @@
 		};
 		let access_token = checkToken();
 
-		response = fetch('http://localhost:8000/api/posts/search', {
+		response = fetch(API_ENDPOINT + '/posts/search', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -130,6 +148,50 @@
 			body: JSON.stringify(search)
 		}).then((res) => res.json());
 	}
+
+	const handleUpload = async () => {
+		if (!selectedImage) {
+			console.error('Please select an image');
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append('image', selectedImage);
+		formData.append('user_id', user.user_id); // Cambia esto con el valor correcto
+
+		const response = await fetch(API_ENDPOINTI + '/user/upload', {
+			method: 'POST',
+			body: formData
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			console.log('Image uploaded:', data);
+		} else {
+			console.error('Error uploading image');
+		}
+	};
+
+
+	let images = [];
+	async function fetchImages() {
+		try {
+			const response = await fetch(API_ENDPOINTI+'/user/images?user_id='+user.user_id);
+			console.log('response' + response)
+			if (response.ok) {
+				images = await response.json();
+				avatarSrc = images[0].url
+			} else {
+				console.error('Error fetching images');
+			}
+		} catch (error) {
+			console.error('Error fetching images:', error);
+		}
+	}
+
+	onMount(fetchImages)
+
+
 </script>
 
 <div class="h-fit flex flex-row justify-center align-middle items-center">
@@ -147,11 +209,40 @@
 					<div
 						class=" rounded-3xl absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 hover:bg-black hover:bg-opacity-25 transition-opacity duration-300"
 					>
-						<button
+						<label
+							for="my_modal_7"
 							class="text-white btn btn-lg w-1/3 bg-gray-800 px-3 py-1 rounded-lg hover:bg-gray-900 transition-colors duration-300"
+							>Editar</label
 						>
-							Editar
-						</button>
+
+						<input type="checkbox" id="my_modal_7" class="modal-toggle" />
+						<div class="modal">
+							<div class="modal-box">
+								<h3 class="text-lg font-bold">Subir Imagen</h3>
+								<p class="py-4">This modal works with a hidden checkbox!</p>
+								<div class="m-4">
+									<input
+										type="file"
+										accept="image/*"
+										class="file-input file-input-bordered file-input-secondary w-full"
+										on:change={handleFileInput}
+									/>
+								</div>
+								<div class="m-4">
+									{#if selectedImage}
+										<img src={URL.createObjectURL(selectedImage)} alt="Imagen seleccionada" />
+									{/if}
+								</div>
+								<div class="modal-action">
+									{#if selectedImage}
+										<button on:click={handleUpload}
+											><label for="my_modal_7" class="btn btn-info">Aceptar</label></button
+										>
+									{/if}
+								</div>
+							</div>
+							<label class="modal-backdrop" for="my_modal_7">Close</label>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -24,3 +24,14 @@ class UserDB(User):
         user_password (str): Contraseña del usuario en la base de datos.
     """
     user_password: str
+
+class UserDBTotal(User):
+    """
+    Clase que representa un usuario en la base de datos, hereda de la clase User.
+
+    Atributos:
+        user_password (str): Contraseña del usuario en la base de datos.
+    """
+    user_password: str
+    neighborhood:str
+    skills: list

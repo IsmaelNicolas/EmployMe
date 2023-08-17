@@ -8,7 +8,8 @@
 		neighborhood: 'Carcelen alto',
 		job_tittle: 'Profesor de nivelacion escolar para ingles',
 		job_description: 'Profesor de nivelacion escolar para ingles',
-		publish_date: '2023-08-14'
+		publish_date: '2023-08-14',
+		skill_names: ''
 	};
 
 	let images = [];
@@ -32,15 +33,26 @@
 	onMount(fetchImages);
 </script>
 
-<div class="card w-3/4 bg-base-100 shadow-xl">
-	<figure class="px-10 pt-10">
-		<img src={avatarSrc} alt="Shoes" class="rounded-xl" />
-	</figure>
-	<div class="card-body items-center text-center">
-		<h2 class="card-title">{job.job_tittle}</h2>
+
+
+<div class="card w-96 bg-base-100 shadow-xl mt-5">
+	<figure class="h-60"><img src={avatarSrc} alt="Shoes" class="object-fill" /></figure>
+	<div class="card-body">
+		<h2 class="card-title">
+			{job.job_tittle}
+		</h2>
 		<p>{job.job_description}</p>
-		<div class="card-actions">
-			<button class="btn btn-primary">Revisar</button>
+
+		<div class="card-actions justify-end">
+            {#each job.skill_names.split(',') as skill}
+                <div class="badge badge-outline">{skill}</div>
+            {/each}
 		</div>
+        <button
+            on:click={() => {
+                console.log(job.job_id);
+            }}
+            class="btn btn-primary">Aplicar</button
+        >
 	</div>
 </div>

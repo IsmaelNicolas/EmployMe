@@ -2,6 +2,7 @@
 	import UserProfile from '../../../components/Profile.svelte';
 	import Loader from '../../../components/Loader.svelte';
 	import { goto } from '$app/navigation';
+	import { API_ENDPOINT } from '../../../Utils/Config';
 
 	// @ts-ignore
 	function parseUser(userData) {
@@ -16,10 +17,9 @@
 
 	async function fetchUserProfile() {
 		const accessToken = localStorage.getItem('access_token');
-
 		if (accessToken) {
 			try {
-				const response = await fetch('http://localhost:8000/api/user/me', {
+				const response = await fetch(API_ENDPOINT+'/user/me', {
 					headers: {
 						Authorization: `Bearer ${accessToken}`
 					}

@@ -2,7 +2,7 @@
 	import logo from '$lib/media/employme.svg';
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
-	// @ts-ignore
+	import {API_ENDPOINT} from '../../../Utils/Config'
 	import Loader from '../../../components/Loader.svelte';
 
 	let username = '';
@@ -18,7 +18,7 @@
 		formData.append('username', username);
 		formData.append('password', password);
 		try {
-			const response = await fetch('http://localhost:8000/api/login', {
+			const response = await fetch(API_ENDPOINT+'/login', {
 				method: 'POST',
 				body: formData,
 				credentials: 'include'

@@ -46,6 +46,20 @@ services:
     links:
       - db
 
+  jobs:
+    build:
+      context: ./Jobs
+    image: jobs-microservice
+    restart: always
+    hostname: job
+    container_name: job
+    ports:
+      - "8082:8082"
+    networks:
+      - app-network
+    links:
+      - db
+
   images:
     build:
       context: ./Images
@@ -56,12 +70,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - passworddb=password
+      - passworddb=l3Ezjx91LKxxrZMP
       - userdb=incp
-      - hostdb=monguito
-      - database=imageDB
-    links:
-      - monguito
+      - hostdb=mongodb.u0yngj8.mongodb.net
+      - database=microservices
     networks:
       - app-network
 
@@ -78,21 +90,6 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
-    networks:
-      - app-network
-
-  monguito:
-    image: mongo
-    hostname: monguito
-    container_name: monguito
-    restart: always
-    ports:
-      - "27019:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=incp
-      - MONGO_INITDB_ROOT_PASSWORD=password
-    volumes:
-      - mongo-data:/data/db
     networks:
       - app-network
 

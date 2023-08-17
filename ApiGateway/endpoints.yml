@@ -30,13 +30,9 @@ microservices:
   Job:
     port: 8082
     endpoints: 
-      - route: /getjobs/{user_id}
+      - route: /jobs/{user_id}
         method: GET
-      - route: /getjob/{job_id}
-        method: GET
-      - route: /createjob
+      - route: /jobs/search
         method: POST
-      - route: /updatejob
-        method: PUT
-      - route: /deletejob/{id_post}
-        method: DELETE
+      - route: /jobs/apply
+        method: POST

@@ -1,10 +1,35 @@
-<script>
+<script lang="ts">
+	// @ts-ignore
 	import logo from '$lib/media/userexample.jpeg';
+	import { onMount } from 'svelte';
+	import { API_ENDPOINTI } from '../Utils/Config';
 
 	function handleLogout() {
 		// Eliminar el token de acceso del almacenamiento local
 		localStorage.removeItem('access_token');
 	}
+
+	export let user_id ='';
+	let images = [];
+	
+	$: avatarSrc =  logo;
+	async function fetchImages() {
+		try {
+			const response = await fetch(API_ENDPOINTI+'/user/images?user_id='+user_id);
+			console.log('response' + response)
+			if (response.ok) {
+				images = await response.json();
+				avatarSrc = images[0].url
+			} else {
+				console.error('Error fetching images');
+			}
+		} catch (error) {
+			console.error('Error fetching images:', error);
+		}
+	}
+
+	onMount(fetchImages)
+
 </script>
 
 <div class="navbar bg-accent">
@@ -24,7 +49,7 @@
 			<div tabindex="0" class="btn btn-ghost btn-circle avatar">
 				<div class="w-full rounded-full">
 					<!-- svelte-ignore a11y-missing-attribute -->
-					<img src={logo} />
+					<img src={avatarSrc} />
 				</div>
 			</div>
 			<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
