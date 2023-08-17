@@ -73,7 +73,7 @@ def get_job_by_title(job:JobUser):
         conn.close()
  
 
-@api_router.post('jobs/apply')
+@api_router.post('/jobs/apply')
 def apply_job(jobUser:JobApply):
     try:
         conn = create_connection()
@@ -81,7 +81,7 @@ def apply_job(jobUser:JobApply):
             querry = "INSERT INTO apply (job_id,user_id,apply_date,favorite) values (%s,%s,%s,false)"
 
             cur.execute(
-                querry, (jobUser.job_tittle,jobUser.user_id,datetime.now()))
+                querry, (jobUser.job_id,jobUser.user_id,datetime.now()))
 
            
         conn.commit()
@@ -91,7 +91,7 @@ def apply_job(jobUser:JobApply):
     finally:
         conn.close()
 
-@api_router.get('jobs/apply')
+@api_router.get('/jobs/apply')
 def apply_job(jobUser:JobUser):
     try:
         conn = create_connection()
